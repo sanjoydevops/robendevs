@@ -1,0 +1,21 @@
+
+
+# Build stage
+FROM node:20-slim AS build
+WORKDIR /app
+# Install Python and build tools for node-gyp
+RUN apt-get update && \
+    apt-get install -y python3 make g++ && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+COPY package*.json ./
+RUN npm install --production
+COPY . .
+
+# Production stage
+FROM node:20-slim AS production
+WORKDIR /app
+COPY --from=build /app /app
+#EXPOSE 8010
+EXPOSE 8000
+ENV NODE_ENV=production
+CMD ["node", "index.js"]

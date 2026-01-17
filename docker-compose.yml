@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: examplepassword
+      POSTGRES_DB: sampledb
+    ports:
+      - "15432:5432"
+    volumes:
+      - pgw-data:/var/lib/postgresql/data
+
+  apiserver:
+    build:
+      context: ./apiserver
+      dockerfile: Dockerfile.backend
+    restart: always
+    env_file:
+      - ./apiserver/.env
+    depends_on:
+      - postgres
+    ports:
+      - "18010:8000"
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.frontend
+    restart: always
+    ports:
+      - "13000:80"
+    depends_on:
+      - apiserver
+
+volumes:
+  pgw-data:
+ 

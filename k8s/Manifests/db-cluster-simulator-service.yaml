@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-cluster-simulator
+  namespace: dev
+spec:
+  selector:
+    app: db-cluster-simulator
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
