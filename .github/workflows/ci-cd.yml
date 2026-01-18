@@ -16,6 +16,9 @@ jobs:
       BACKEND_IMAGE: ${{ secrets.BACKEND_IMAGE }}
       FRONTEND_IMAGE: ${{ secrets.FRONTEND_IMAGE }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
