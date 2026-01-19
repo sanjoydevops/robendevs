@@ -17,3 +17,7 @@ psql -U postgres -d sampledb
 SELECT id, email, status, is_verified FROM users WHERE email = 'test3@gmail.com';
 
 UPDATE users SET status = 'active', is_verified = true WHERE email = 'test3@gmail.com';
+
+
+Now create a Self hosted runner
+Go to your GitHub repo → Settings → Actions → Runners.
