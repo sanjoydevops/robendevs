@@ -21,6 +21,8 @@ spec:
         env:
         - name: NODE_ENV
           value: "production"
+        - name: API_VERSION
+          value: "v1"
         - name: SESSION_ENCRYPT_SECRET
           valueFrom:
             secretKeyRef:
@@ -31,4 +33,42 @@ spec:
             secretKeyRef:
               name: app-secret
               key: SESSION_ALGORITHM
-        # Add other env vars as needed
+        - name: JWT_VERIFY_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: app-secret
+              key: JWT_VERIFY_SECRET
+        - name: JWT_VERIFY_EXPIRY
+          valueFrom:
+            secretKeyRef:
+              name: app-secret
+              key: JWT_VERIFY_EXPIRY
+        - name: JWT_SESSION_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: app-secret
+              key: JWT_SESSION_SECRET
+        - name: JWT_SESSION_EXPIRY
+          valueFrom:
+            secretKeyRef:
+              name: app-secret
+              key: JWT_SESSION_EXPIRY
+        - name: DB_HOST
+          value: "postgres"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: app-secret
+              key: POSTGRES_USER
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: app-secret
+              key: POSTGRES_PASSWORD
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: app-secret
+              key: POSTGRES_DB
+        - name: DB_PORT
+          value: "5432"

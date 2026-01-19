@@ -19,19 +19,6 @@ spec:
         env:
         - name: discovery.type
           value: single-node
-        # --- CRITICAL FOR DEV: Disables SSL and Password Auth ---
-        - name: xpack.security.enabled
-          value: "false"
-        # --- Resource Limits (ES needs at least 1GB - 2GB) ---
-        resources:
-          requests:
-            memory: "1Gi"
-            cpu: "500m"
-          limits:
-            memory: "2Gi"
-            cpu: "1000m"
         ports:
         - containerPort: 9200
-          name: http
         - containerPort: 9300
-          name: transport

@@ -4,34 +4,74 @@ metadata:
   name: prometheus
   namespace: dev
 ---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus-cluster-role
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - nodes/proxy
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["extensions"]
+  resources:
+  - ingresses
+  verbs: ["get", "list", "watch"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-cluster-role-binding
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: dev
+roleRef:
+  kind: ClusterRole
+  name: prometheus-cluster-role
+  apiGroup: rbac.authorization.k8s.io
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: prometheus-config
   namespace: dev
-  labels:
-    app: prometheus
-  annotations:
-    prometheus.io/scrape: 'true'
 data:
   prometheus.yml: |
     global:
       scrape_interval: 15s
+
     scrape_configs:
-      - job_name: 'backend'
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+
+      - job_name: 'kube-state-metrics'
+        static_configs:
+          - targets: ['my-release-kube-state-metrics.dev.svc.cluster.local:8080']
+
+      - job_name: 'kubernetes-pods'
         kubernetes_sd_configs:
           - role: pod
         relabel_configs:
-          - source_labels: [__meta_kubernetes_pod_label_app]
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
             action: keep
-            regex: backend
-      - job_name: 'ingress-nginx'
-        kubernetes_sd_configs:
-          - role: pod
-        relabel_configs:
-          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
-            action: keep
-            regex: ingress-nginx
+            regex: true
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [__meta_kubernetes_pod_address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -54,15 +94,20 @@ spec:
         image: prom/prometheus:v2.49.1
         args:
           - '--config.file=/etc/prometheus/prometheus.yml'
+          - '--storage.tsdb.path=/prometheus/'
         ports:
         - containerPort: 9090
         volumeMounts:
-        - name: prometheus-config
-          mountPath: /etc/prometheus
+        - name: prometheus-config-volume
+          mountPath: /etc/prometheus/
+        - name: prometheus-storage-volume
+          mountPath: /prometheus/
       volumes:
-      - name: prometheus-config
+      - name: prometheus-config-volume
         configMap:
           name: prometheus-config
+      - name: prometheus-storage-volume
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

@@ -8,13 +8,15 @@ const { API_URL } = require('../config')
 
 exports.registerUser = async (userInput) => {
     const { firstName, lastName, email, password, passwordConfirm } = userInput
-    // create the user
+    // create the user (auto-activate and verify for dev)
     const newUser = await User.create({
         firstName,
         lastName,
         email,
         password,
-        passwordConfirm
+        passwordConfirm,
+        status: 'active',
+        isVerified: true
     })
     // sign a token
     const data = { id: newUser.id }

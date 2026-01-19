@@ -3,20 +3,19 @@ kind: Ingress
 metadata:
   name: node-react-ingress
   namespace: dev
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
+  ingressClassName: nginx
   rules:
   - host: node-react.local
     http:
       paths:
       - pathType: Prefix
-        path: /api(/|$)(.*)
+        path: /api
         backend:
           service:
             name: backend
             port:
-              number: 8010
+              number: 8000
       - pathType: Prefix
         path: /
         backend:
