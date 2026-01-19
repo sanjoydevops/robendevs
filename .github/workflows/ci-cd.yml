@@ -63,16 +63,7 @@ jobs:
 
       - name: Set Namespace
         id: set-namespace
-        run: |
-          if [[ "${GITHUB_REF##*/}" == "main" ]]; then
-            echo "namespace=dev" >> $GITHUB_OUTPUT
-          elif [[ "${GITHUB_REF##*/}" == "pre-release/v1" ]]; then
-            echo "namespace=prepod" >> $GITHUB_OUTPUT
-          elif [[ "${GITHUB_REF##*/}" == "release/v1" ]]; then
-            echo "namespace=release" >> $GITHUB_OUTPUT
-          else
-            echo "namespace=dev" >> $GITHUB_OUTPUT
-          fi
+        run: echo "namespace=dev" >> $GITHUB_OUTPUT
 
       - name: Apply Kubernetes manifests
         run: |
