@@ -20,7 +20,7 @@ jobs:
       - name: Use default Docker context
         run: docker context use default
         shell: pwsh
-
+    steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -61,7 +61,20 @@ jobs:
         with:
           version: 'latest'
 
+      - name: Set Namespace
+        id: set-namespace
+        run: |
+          if [[ "${GITHUB_REF##*/}" == "main" ]]; then
+            echo "namespace=dev" >> $GITHUB_OUTPUT
+          elif [[ "${GITHUB_REF##*/}" == "pre-release/v1" ]]; then
+            echo "namespace=prepod" >> $GITHUB_OUTPUT
+          elif [[ "${GITHUB_REF##*/}" == "release/v1" ]]; then
+            echo "namespace=release" >> $GITHUB_OUTPUT
+          else
+            echo "namespace=dev" >> $GITHUB_OUTPUT
+          fi
+
       - name: Apply Kubernetes manifests
         run: |
-          kubectl apply -n dev -f k8s/Structure/
-          kubectl apply -n dev -f k8s/Observability/
+          kubectl apply -n ${{ steps.set-namespace.outputs.namespace }} -f k8s/Structure/
+          kubectl apply -n ${{ steps.set-namespace.outputs.namespace }} -f k8s/Observability/
