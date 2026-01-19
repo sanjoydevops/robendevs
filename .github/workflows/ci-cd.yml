@@ -16,9 +16,10 @@ jobs:
       BACKEND_IMAGE: ${{ secrets.BACKEND_IMAGE }}
       FRONTEND_IMAGE: ${{ secrets.FRONTEND_IMAGE }}
       DOCKER_BUILDKIT: 0
-          - name: Use default Docker context
-            run: docker context use default
-            shell: pwsh
+    steps:
+      - name: Use default Docker context
+        run: docker context use default
+        shell: pwsh
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
