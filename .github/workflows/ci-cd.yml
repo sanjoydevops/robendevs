@@ -45,6 +45,24 @@ jobs:
           push: true
           tags: ${{ env.FRONTEND_IMAGE }}
 
+
+  trivy-scan:
+    needs: build-and-push
+    runs-on: [self-hosted, Linux, X64]
+    env:
+      BACKEND_IMAGE: ${{ secrets.BACKEND_IMAGE }}
+      FRONTEND_IMAGE: ${{ secrets.FRONTEND_IMAGE }}
+    steps:
+      - name: Scan backend image for vulnerabilities (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.BACKEND_IMAGE }}
+
+      - name: Scan frontend image for vulnerabilities (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.FRONTEND_IMAGE }}
+
   deploy:
     needs: build-and-push
     runs-on: [self-hosted, Linux, X64]
