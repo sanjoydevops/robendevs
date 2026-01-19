@@ -24,84 +24,19 @@ Go to your GitHub repo → Settings → Actions → Runners.
 
 
 
+Use Helm to install grapana and prometheus and also monitor cluster and resource
 
-name: CI/CD Pipeline
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
-jobs:
-  build-and-push:
-    runs-on: [self-hosted, Windows, X64]
-    env:
-      REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
-      USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      BACKEND_IMAGE: ${{ secrets.BACKEND_IMAGE }}
-      FRONTEND_IMAGE: ${{ secrets.FRONTEND_IMAGE }}
-      DOCKER_BUILDKIT: 0
-    steps:
-      - name: Use default Docker context
-        run: docker context use default
-        shell: pwsh
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+export POD_NAME=$(kubectl --namespace default get pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=kube-prometheus-stack" -oname)
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+kubectl --namespace default get secrets kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
 
-      - name: Log in to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ env.USERNAME }}
-          password: ${{ env.PASSWORD }}
+Permantly forward to nodeport grapana
 
-      - name: Build and push backend image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./apiserver
-          file: ./apiserver/Dockerfile.backend
-          push: true
-          tags: ${{ env.BACKEND_IMAGE }}
-
-      - name: Build and push frontend image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./client
-          file: ./client/Dockerfile.frontend
-          push: true
-          tags: ${{ env.FRONTEND_IMAGE }}
-
-  deploy:
-    needs: build-and-push
-    runs-on: [self-hosted, Windows, X64]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Kubeconfig
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'latest'
-
-      - name: Set Namespace
-        id: set-namespace
-        run: |
-          if [[ "${GITHUB_REF##*/}" == "main" ]]; then
-            echo "namespace=dev" >> $GITHUB_OUTPUT
-          elif [[ "${GITHUB_REF##*/}" == "pre-release/v1" ]]; then
-            echo "namespace=prepod" >> $GITHUB_OUTPUT
-          elif [[ "${GITHUB_REF##*/}" == "release/v1" ]]; then
-            echo "namespace=release" >> $GITHUB_OUTPUT
-          else
-            echo "namespace=dev" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Apply Kubernetes manifests
-        run: |
-          kubectl apply -n ${{ steps.set-namespace.outputs.namespace }} -f k8s/Structure/
-          kubectl apply -n ${{ steps.set-namespace.outputs.namespace }} -f k8s/Observability/
+kubectl get svc -n default | grep grafana
+kubectl patch svc kube-prometheus-stack-grafana -n default -p '{"spec": {"type": "NodePort"}}'
+kubectl get svc kube-prometheus-stack-grafana -n default
