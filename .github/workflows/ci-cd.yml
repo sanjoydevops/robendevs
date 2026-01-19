@@ -61,11 +61,7 @@ jobs:
         with:
           version: 'latest'
 
-      - name: Set Namespace
-        id: set-namespace
-        run: echo "namespace=dev" >> $GITHUB_OUTPUT
-
       - name: Apply Kubernetes manifests
         run: |
-          kubectl apply -n ${{ steps.set-namespace.outputs.namespace }} -f k8s/Structure/
-          kubectl apply -n ${{ steps.set-namespace.outputs.namespace }} -f k8s/Observability/
+          kubectl apply -n dev -f k8s/Structure/
+          kubectl apply -n dev -f k8s/Observability/
