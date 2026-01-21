@@ -7,7 +7,18 @@ on:
     branches: [ main ]
 
 jobs:
+  gitleaks-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Run Gitleaks to check for secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build-and-push:
+    needs: gitleaks-scan
     runs-on: [self-hosted, Linux, X64]
     env:
       REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
@@ -64,7 +75,7 @@ jobs:
           image-ref: ${{ env.FRONTEND_IMAGE }}
 
   deploy:
-    needs: build-and-push
+    needs: trivy-scan
     runs-on: [self-hosted, Linux, X64]
     steps:
       - name: Checkout code
@@ -82,4 +93,4 @@ jobs:
       - name: Apply Kubernetes manifests
         run: |
           kubectl apply -n dev -f k8s/Structure/
-          kubectl apply -n dev -f k8s/Observability/
+          # kubectl apply -n dev -f k8s/Observability/  # <--- hidden

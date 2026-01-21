@@ -24,19 +24,12 @@ Go to your GitHub repo → Settings → Actions → Runners.
 
 
 
-Use Helm to install grapana and prometheus and also monitor cluster and resource
+Grafana and prometheus
 
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo update
-helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack
+git clone --depth 1 https://github.com/prometheus-operator/kube-prometheus.git
+cd kube-prometheus
+kubectl apply -f manifests/setup/
+kubectl apply -f manifests/
+ kubectl apply -f manifests/pv-pvc/
 
-
-export POD_NAME=$(kubectl --namespace default get pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=kube-prometheus-stack" -oname)
-
-kubectl --namespace default get secrets kube-prometheus-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
-
-Permantly forward to nodeport grapana
-
-kubectl get svc -n default | grep grafana
-kubectl patch svc kube-prometheus-stack-grafana -n default -p '{"spec": {"type": "NodePort"}}'
-kubectl get svc kube-prometheus-stack-grafana -n default
+kubectl apply -f experimental/metrics-server/
