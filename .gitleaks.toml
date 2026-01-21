@@ -1,0 +1,7 @@
+[allowlist]
+
+  [[allowlist.files]]
+  path = "apiserver/example.env"
+
+  [[allowlist.files]]
+  path = "k8s/Structure/app-secret.yaml"
