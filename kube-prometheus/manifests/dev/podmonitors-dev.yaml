@@ -1,0 +1,50 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: backend-podmonitor
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  namespaceSelector:
+    matchNames:
+      - dev
+  podMetricsEndpoints:
+    - port: "8000"
+      path: /metrics
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: frontend-podmonitor
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  namespaceSelector:
+    matchNames:
+      - dev
+  podMetricsEndpoints:
+    - port: "80"
+      path: /metrics
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: postgres-podmonitor
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  namespaceSelector:
+    matchNames:
+      - dev
+  podMetricsEndpoints:
+    - port: "8000"
+      path: /metrics
+      interval: 30s

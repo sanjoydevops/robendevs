@@ -29,7 +29,21 @@ Grafana and prometheus
 git clone --depth 1 https://github.com/prometheus-operator/kube-prometheus.git
 cd kube-prometheus
 kubectl apply -f manifests/setup/
+kubectl create -f manifests/setup/0alertmanagerConfigCustomResourceDefinition.yaml
+kubectl delete -f manifests/setup/0alertmanagerConfigCustomResourceDefinition.yaml
+kubectl create -f manifests/setup/0alertmanagerConfigCustomResourceDefinition.yaml
+kubectl create -f manifests/setup/0alertmanagerCustomResourceDefinition.yaml
+kubectl create -f manifests/setup/0prometheusagentCustomResourceDefinition.yaml
+kubectl create -f manifests/setup/0prometheusCustomResourceDefinition.yaml
+kubectl create -f manifests/setup/0scrapeconfigCustomResourceDefinition.yaml
+kubectl create -f manifests/setup/0thanosrulerCustomResourceDefinition.yaml
+kubectl apply -f manifests/setup/
+
+
 kubectl apply -f manifests/
- kubectl apply -f manifests/pv-pvc/
+kubectl apply -f manifests/pv-pvc/
 
 kubectl apply -f experimental/metrics-server/
+
+username: admin
+pass: admin

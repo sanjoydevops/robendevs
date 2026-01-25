@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-prometheus-0
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/prometheus/p1"
+  claimRef:
+    namespace: monitoring
+    name: prometheus-k8s-db-prometheus-k8s-0  # updated to match PVC
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-prometheus-1
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/prometheus/p2"
+  claimRef:
+    namespace: monitoring
+    name: prometheus-k8s-db-prometheus-k8s-1  # updated to match PVC
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-k8s-db-prometheus-k8s-0  # updated
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: ""
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-k8s-db-prometheus-k8s-1  # updated
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: ""
