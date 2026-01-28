@@ -41,13 +41,15 @@ jobs:
           username: ${{ env.USERNAME }}
           password: ${{ env.PASSWORD }}
 
+
       - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
           context: ./apiserver
           file: ./apiserver/Dockerfile.backend
           push: true
-          tags: ${{ env.BACKEND_IMAGE }}
+          tags: ${{ env.BACKEND_IMAGE }}:${{ github.run_number }}
+
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
@@ -55,7 +57,7 @@ jobs:
           context: ./client
           file: ./client/Dockerfile.frontend
           push: true
-          tags: ${{ env.FRONTEND_IMAGE }}
+          tags: ${{ env.FRONTEND_IMAGE }}:${{ github.run_number }}
 
 
   trivy-scan:

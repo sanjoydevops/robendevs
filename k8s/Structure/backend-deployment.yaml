@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: sanjoydeb0007/robendevs-backend:latest
+        image: sanjoydeb0007/robendevs-backend:${BUILD_NUMBER}
         ports:
         - containerPort: 8000
         env:

@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: sanjoydeb0007/robendevs-frontend:latest
+        image: sanjoydeb0007/robendevs-frontend:${BUILD_NUMBER}
         ports:
         - containerPort: 80

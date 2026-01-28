@@ -47,3 +47,6 @@ kubectl apply -f experimental/metrics-server/
 
 username: admin
 pass: admin
+
+
+
