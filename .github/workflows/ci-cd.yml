@@ -93,6 +93,12 @@ jobs:
         id: set-namespace
         run: echo "namespace=dev" >> $GITHUB_OUTPUT
 
+      - name: Update backend image tag in manifest
+        run: sed -i "s|\${BUILD_NUMBER}|${{ github.run_number }}|g" k8s/Structure/backend-deployment.yaml
+
+      - name: Update frontend image tag in manifest
+        run: sed -i "s|\${BUILD_NUMBER}|${{ github.run_number }}|g" k8s/Structure/frontend-deployment.yaml
+
       - name: Apply Kubernetes manifests
         run: |
           kubectl apply -n dev -f k8s/Structure/
